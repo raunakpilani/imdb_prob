@@ -26,7 +26,7 @@ class Imdb
 	end
 
 	def populate_link_hash
-		top_250_line = html_parse_with_xpath(main_page,"//a").detect do |tagline| 
+		top_250_line = html_parse_with_xpath(main_page,"//div[@id='navbar']/div/ul/li/ul/li/a").detect do |tagline| 
 			tagline.content == "Top 250" 
 		end
 
@@ -99,8 +99,8 @@ class Imdb
 					output += "\t" + @movie_links_hash[k] 
 					worked = true
 				end
-			STDOUT.puts output
 			end 
+			STDOUT.puts output
 			puts "Nothing!" unless worked
 			true
 		when 'x' # Exit
@@ -122,7 +122,6 @@ class Imdb
 
 end
 
-=begin
 
 imdb = Imdb.new("http://www.imdb.com")
 
@@ -145,4 +144,3 @@ while true do
 	choice = gets.chomp
 	imdb.mrcx_menu(choice)
 end
-=end
