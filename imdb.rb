@@ -32,8 +32,7 @@ class Imdb
 
 		top_250_link = main_page + top_250_line['href']
 
-		print "Please enter range of rank you would like to see, eg., 10:50. Enter just 10 for top 10 movies: "
-		rank_range = gets.chomp
+		rank_range = gets_with_message "Enter range of rank"
 
 		min_rank, max_rank = get_rank_range(rank_range)
 
@@ -59,58 +58,51 @@ class Imdb
 		end
 	end
 
-	def mrcx_menu(choice)
-		case choice 
-
-		when 'm' # Ask for movie name 
-			print "Enter the exact name of Movie: "
-			mov = STDIN.gets.chomp
-			rank = @movie_links_hash.key(mov)
-
-			if rank 
-				puts_movie_details(rank,mov)
-			else 
-				puts "Movie with this name doesnt exist!"
-			end 
-			true
-
-		when 'r' # ask for rank
-			print "Enter rank of movie: "
-			rank = STDIN.gets.chomp
-			rank = rank.to_i
-			rank -= 1
-			if @movie_links_hash.has_key?(rank) 
-				movie = @movie_links_hash[rank]
-				puts_movie_details(rank,movie)
-			else 
-				puts "Movie with this rank doesnt exist"
-			end 
-			true
-
-		when 'c' # Ask for cast member
-			print "Enter name of cast member: "
-			cast = STDIN.gets.chomp
-
-			worked = false
-
-			output = "\t#{cast} has worked in: \n"
-			@movie_cast_hash.each do |k,v|
-				if v.include?(cast)
-					output += "\t" + @movie_links_hash[k] 
-					worked = true
-				end
-			end 
-			STDOUT.puts output
-			puts "Nothing!" unless worked
-			true
-		when 'x' # Exit
-			STDOUT.puts "Goodbye!"
-			false
-
-		else
-			puts "Please enter either m, r, c or x as an input!"
-			true
+	def menu_option_m
+		mov = gets_with_message "Exact name of Movie"
+		rank = @movie_links_hash.key(mov)
+		if rank 
+			puts_movie_details(rank,mov)
+		else 
+			puts "Movie with this name doesnt exist!"
 		end 
+		true
+	end
+
+	def menu_option_r
+		rank = gets_with_message "Enter rank of movie: "
+		rank = rank.to_i
+		rank -= 1
+		if @movie_links_hash.has_key?(rank) 
+			movie = @movie_links_hash[rank]
+			puts_movie_details(rank,movie)
+		else 
+			puts "Movie with this rank doesnt exist"
+		end 
+		true
+	end
+	
+	def menu_option_c
+		print "Enter name of cast member: "
+		cast = STDIN.gets.chomp
+
+		worked = false
+
+		output = "\t#{cast} has worked in: \n"
+		@movie_cast_hash.each do |k,v|
+			if v.include?(cast)
+				output += "\t" + @movie_links_hash[k] 
+				worked = true
+			end
+		end 
+		STDOUT.puts output
+		puts "Nothing!" unless worked
+		true
+	end
+	
+	def menu_option_x
+		STDOUT.puts "Goodbye!"
+		false
 	end
 
 	def puts_movie_details(rank, movie)
@@ -120,9 +112,13 @@ class Imdb
 		STDOUT.puts output
 	end
 
+	def gets_with_message(message)
+		print message + " >"
+		STDIN.gets.chomp
+	end
 end
 
-
+=begin
 imdb = Imdb.new("http://www.imdb.com")
 
 # Find min to max number of movies and store them in a movie_links_hash as Rank => [Name,Path] 
@@ -133,7 +129,7 @@ imdb.populate_cast_hash
 
 
 # Cast search
-while true do
+begin
 	puts
 	puts "---- Movie/Cast Listings ----"
 	puts "'m' to view cast of a particular movie"
@@ -142,5 +138,11 @@ while true do
 	puts "'x' to exit"
 	print "Your choice[m/r/c/x]? "
 	choice = gets.chomp
-	imdb.mrcx_menu(choice)
-end
+	begin
+		continue = imdb.send "menu_option_"+choice
+	rescue NoMethodError => msg
+		puts "Incorrect option entered!"
+		continue = true
+	end
+end while continue
+=end
