@@ -36,14 +36,12 @@ class Imdb
 
     min_rank, max_rank = get_rank_range(rank_range)
 
-    puts "Displaying: #{min_rank} to #{max_rank}"
     min_rank -= 1
     curr_rank = min_rank
     html_parse_with_xpath(top_250_link,"//table[2]/tr/td/font/a")[min_rank...max_rank].each do |elem| 
       @movie_links_hash[curr_rank] = [elem.content,elem['href']]
       curr_rank += 1
     end
-    @movie_links_hash.each { |k,v| puts "#{k+1}. #{v[0]}"}
   end
 
   def populate_cast_hash
@@ -70,7 +68,7 @@ class Imdb
   end
 
   def menu_option_r
-    rank = gets_with_message "Enter rank of movie: "
+    rank = gets_with_message "Enter rank of movie"
     rank = rank.to_i
     rank -= 1
     if @movie_links_hash.has_key?(rank) 
@@ -83,9 +81,7 @@ class Imdb
   end
   
   def menu_option_c
-    print "Enter name of cast member: "
-    cast = STDIN.gets.chomp
-
+    cast = gets_with_message "Enter name of cast member"
     worked = false
 
     output = "\t#{cast} has worked in: \n"
@@ -95,52 +91,25 @@ class Imdb
         worked = true
       end
     end 
-    STDOUT.puts output
-    puts "Nothing!" unless worked
+    puts output
+    STDOUT.puts "Nothing!" unless worked
     true
   end
   
   def menu_option_x
-    STDOUT.puts "Goodbye!"
+    puts "Goodbye!"
     false
   end
 
   def puts_movie_details(rank, movie)
-    STDOUT.puts "\tThe movie #{movie} has rank: #{rank+1}"
+    puts "\tThe movie #{movie} has rank: #{rank+1}"
     output = "\tThe cast members are as follows: \n"
     @movie_cast_hash[rank].each { |cast_member| output += "\t" + cast_member }
-    STDOUT.puts output
+    puts output
   end
 
   def gets_with_message(message)
-    print message + " >"
-    STDIN.gets.chomp
+    print message + " > "
+    gets.chomp
   end
 end
-
-imdb = Imdb.new("http://www.imdb.com")
-
-# Find min to max number of movies and store them in a movie_links_hash as Rank => [Name,Path] 
-imdb.populate_link_hash
-
-# Populate the movie_cast_hash as Rank => Cast-List
-imdb.populate_cast_hash
-
-
-# Cast search
-begin
-  puts
-  puts "---- Movie/Cast Listings ----"
-  puts "'m' to view cast of a particular movie"
-  puts "'r' to view cast of a particular movie"
-  puts "'c' to search for all movies in the list earlier requested in which a cast member has performed "
-  puts "'x' to exit"
-  print "Your choice[m/r/c/x]? "
-  choice = gets.chomp
-  begin
-    continue = imdb.send "menu_option_"+choice
-  rescue NoMethodError => msg
-    puts "Incorrect option entered!"
-    continue = true
-  end
-end while continue
